@@ -13,7 +13,7 @@ namespace SimpleHttpServer
 
         public HttpResponse Handle(HttpRequest request)
         {
-            var url_part = request.Url;
+            var url_part = request.Url.LocalPath;
 
             // do some basic sanitization of the URL, attempting to make sure they can't read files outside the basepath
             // NOTE: this is probably not bulletproof/secure
@@ -48,7 +48,7 @@ namespace SimpleHttpServer
                 return new HttpResponse
                 {
                     StatusCode = "404",
-                    ReasonPhrase = string.Format("Not Found ({0})", local_path),
+                    ReasonPhrase = string.Format("Not Found ({0})", new FileInfo(local_path).FullName),
                 };
             }
         }
@@ -69,7 +69,7 @@ namespace SimpleHttpServer
         HttpResponse Handle_LocalDir(HttpRequest request, string local_path)
         {
             var output = new StringBuilder();
-            output.Append(string.Format("<h1> Directory: {0} </h1>", request.Url));
+            output.Append(string.Format("<h1> Directory: {0} </h1>", request.Url.LocalPath));
 
             foreach (var entry in Directory.GetFiles(local_path))
             {

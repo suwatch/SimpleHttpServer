@@ -36,15 +36,6 @@ namespace SimpleHttpServer
             HttpResponse response = _handler.Handle(request);
             Program.Trace(response);
 
-            // build a default response for errors
-            if (response.Content == null)
-            {
-                if (response.StatusCode != "200")
-                {
-                    response.ContentAsUTF8 = string.Format("{0} {1} <p> {2}", response.StatusCode, request.Url, response.ReasonPhrase);
-                }
-            }
-
             await WriteResponse(outputStream, response);
 
             outputStream.Flush();
@@ -126,11 +117,11 @@ namespace SimpleHttpServer
                 throw new Exception("invalid http request line");
             }
             string method = tokens[0].ToUpper();
-            string url = tokens[1];
+            string pathAndQuery = tokens[1];
             string protocolVersion = tokens[2];
 
             //Read Headers
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             string line;
             while ((line = await Readline(inputStream)) != null)
             {
@@ -178,7 +169,7 @@ namespace SimpleHttpServer
             return new HttpRequest()
             {
                 Method = method,
-                Url = url,
+                Url = new Uri(string.Format("http://{0}{1}", headers["HOST"], pathAndQuery)),
                 Headers = headers,
                 Content = content
             };
