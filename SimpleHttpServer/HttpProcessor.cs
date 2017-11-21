@@ -78,8 +78,8 @@ namespace SimpleHttpServer
             while (true)
             {
                 var read = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (read <= 0)
-                    continue;
+                if (read <= 0) { break; }
+
                 next_char = buffer[0];
                 //next_char = stream.ReadByte();
                 if (next_char == '\n') { break; }

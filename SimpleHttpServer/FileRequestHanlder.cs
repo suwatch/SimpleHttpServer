@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleHttpServer
@@ -14,6 +15,16 @@ namespace SimpleHttpServer
         public HttpResponse Handle(HttpRequest request)
         {
             var url_part = request.Url.LocalPath;
+
+            if (url_part.IndexOf("/sleep.", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                Thread.Sleep(10000);
+                return new HttpResponse
+                {
+                    StatusCode = "200",
+                    ReasonPhrase = "Sleep (10s)",
+                };
+            }
 
             // do some basic sanitization of the URL, attempting to make sure they can't read files outside the basepath
             // NOTE: this is probably not bulletproof/secure
